@@ -1,8 +1,8 @@
 import cors from 'cors';
 import express, { Application } from 'express';
 
-import './models/';
-import { routes } from './modules';
+import '../models';
+import { routes } from '../modules';
 
 export default class Server {
   public PORT: number = +process.env.PORT! ?? 2018;
