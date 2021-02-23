@@ -11,7 +11,7 @@ class ErrorHandler {
     let code = 500;
 
     if (error instanceof AppError) {
-      code = error.code;
+      code = error.statusCode;
     }
 
     // use a logger utility
