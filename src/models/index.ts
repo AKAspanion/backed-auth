@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 
+import './user';
+
 const dbConnectionString = 'mongodb://db:27017/docker-mongo';
 
 function connectDB(connectionString: string) {
@@ -7,8 +9,8 @@ function connectDB(connectionString: string) {
     useNewUrlParser: true,
     server: {
       auto_reconnect: true,
-      reconnectTries: Number.MAX_VALUE,
       reconnectInterval: 1000,
+      reconnectTries: Number.MAX_VALUE,
       socketOptions: { keepAlive: 1, connectTimeoutMS: 30000 },
     },
   };
