@@ -1,6 +1,9 @@
 import cors from 'cors';
 import express, { Application } from 'express';
 
+import './models/';
+import { routes } from './modules';
+
 export default class Server {
   public PORT: number = +process.env.PORT! ?? 2018;
   private readonly app: Application;
@@ -12,6 +15,8 @@ export default class Server {
     this.app.use(cors());
     this.app.use(express.json({ limit: '200mb' }));
     this.app.use(express.urlencoded({ extended: false }));
+
+    this.loadRoutes();
   }
 
   /**
@@ -44,7 +49,9 @@ export default class Server {
     });
   }
 
-  public use(path: string, router: any): void {
-    this.app.use(path, router);
+  private loadRoutes() {
+    Object.keys(routes).forEach(key => {
+      this.app.use(key, routes[key]);
+    });
   }
 }

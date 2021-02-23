@@ -1,7 +1,5 @@
 import mongoose, { Connection } from 'mongoose';
 
-import './models/';
-
 export default class MongoConnector {
   private mongoConnection: Connection;
 

@@ -4,8 +4,6 @@ import Server from './server';
 import MongoConnector from './mongo';
 import ErrorHandler from './utils/ErrorHandler';
 
-import userRouter from './modules/user/userRouter';
-
 dotenv.config();
 
 const connnectionUrl = process.env.DB_URL ?? 'mongodb://db:27017/docker-mongo';
@@ -13,8 +11,6 @@ const connnectionUrl = process.env.DB_URL ?? 'mongodb://db:27017/docker-mongo';
 (async () => {
   const server = new Server();
   const connector = new MongoConnector();
-
-  server.use('/user', userRouter);
 
   await server.start();
   await connector.connect(connnectionUrl);
