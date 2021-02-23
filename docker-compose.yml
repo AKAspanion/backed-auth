@@ -1,0 +1,42 @@
+version: "3"
+
+services:
+  manage_modules:
+    image: node:10.16
+    volumes:
+      - .:/app
+    working_dir: /app
+
+  app:
+    container_name: docker-mongo
+    restart: always
+    build: .
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: npm run dev
+    ports:
+      - "2108:2108" 
+    depends_on:
+      - db
+    links:
+      - db
+    environment:
+      WAIT_HOSTS: db:27017
+      NODE_TLS_REJECT_UNAUTHORIZED: 0
+      SUPER_USERS: ""
+      ENV: "local"
+
+  db:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_DATA_DIR=/data/db
+    volumes:
+      - mongodata:/data/db
+
+volumes:
+  mongodata:
+    external: true
