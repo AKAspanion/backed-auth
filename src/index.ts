@@ -1,24 +1,42 @@
-import app from './app';
+import dotenv from 'dotenv';
 
+import Server from './server';
+import MongoConnector from './mongo';
 import ErrorHandler from './utils/ErrorHandler';
 
 import userRouter from './modules/user/userRouter';
 
-app.use('/user', userRouter);
+dotenv.config();
 
-const PORT = process.env.PORT || 2108;
+const connnectionUrl = process.env.DB_URL ?? 'mongodb://db:27017/docker-mongo';
 
-app.listen(PORT, () => {
-  console.log('Server started on port ' + PORT);
-});
+(async () => {
+  const server = new Server();
+  const connector = new MongoConnector();
 
-// handle all errors here
-const { handleError } = new ErrorHandler();
+  server.use('/user', userRouter);
 
-process.on('uncaughtException', (error: Error) => {
-  handleError(error);
-});
+  await server.start();
+  await connector.connect(connnectionUrl);
 
-process.on('unhandledRejection', (error: Error) => {
-  handleError(error);
-});
+  const graceful = async () => {
+    await connector.disconnect();
+    await server.stop();
+    process.exit(0);
+  };
+
+  // Stop graceful
+  process.on('SIGTERM', graceful);
+  process.on('SIGINT', graceful);
+
+  // handle all fallback errors
+  const { handleError } = new ErrorHandler();
+
+  process.on('uncaughtException', (error: Error) => {
+    handleError(error);
+  });
+
+  process.on('unhandledRejection', (error: Error) => {
+    handleError(error);
+  });
+})();
