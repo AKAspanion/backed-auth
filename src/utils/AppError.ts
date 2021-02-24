@@ -2,13 +2,19 @@
  * Base error class for all errors
  */
 class AppError extends Error {
-  statusCode: number;
+  public statusCode: number;
+  public knownError: boolean;
 
-  constructor(name: string, message?: string) {
+  constructor(name: string, message?: string, knownError: boolean = false) {
     super(message);
+
     this.statusCode = 500;
+    this.knownError = knownError;
+
     this.name = name ?? 'AppError';
     this.message = message ?? 'Internal Server Error';
+
+    Error.captureStackTrace(this);
   }
 }
 
@@ -17,7 +23,7 @@ class AppError extends Error {
  */
 export class BadRequestError extends AppError {
   constructor(message?: string) {
-    super('BadRequestError', message ?? 'Bad Request');
+    super('BadRequestError', message ?? 'Bad Request', true);
     Object.setPrototypeOf(this, BadRequestError.prototype);
     this.statusCode = 400;
   }
@@ -28,7 +34,7 @@ export class BadRequestError extends AppError {
  */
 export class UnauthorizedError extends AppError {
   constructor(message?: string) {
-    super('UnauthorizedError', message ?? 'Unauthorized');
+    super('UnauthorizedError', message ?? 'Unauthorized', true);
     Object.setPrototypeOf(this, UnauthorizedError.prototype);
     this.statusCode = 401;
   }
@@ -39,7 +45,7 @@ export class UnauthorizedError extends AppError {
  */
 export class ForbiddenError extends AppError {
   constructor(message?: string) {
-    super('ForbiddenError', message ?? 'Forbidden');
+    super('ForbiddenError', message ?? 'Forbidden', true);
     Object.setPrototypeOf(this, ForbiddenError.prototype);
     this.statusCode = 403;
   }
@@ -50,7 +56,7 @@ export class ForbiddenError extends AppError {
  */
 export class NotFoundError extends AppError {
   constructor(message?: string) {
-    super('NotFoundError', message ?? 'Not Found');
+    super('NotFoundError', message ?? 'Not Found', true);
     Object.setPrototypeOf(this, NotFoundError.prototype);
     this.statusCode = 404;
   }

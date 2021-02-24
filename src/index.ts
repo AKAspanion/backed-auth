@@ -26,10 +26,14 @@ const connnectionUrl = process.env.DB_URL ?? 'mongodb://db:27017/docker-mongo';
   process.on('SIGINT', graceful);
 
   // handle all fallback errors
-  const { handleError } = new ErrorHandler();
+  const { handleError, isKnowError } = new ErrorHandler();
 
   process.on('uncaughtException', (error: Error) => {
     handleError(error);
+
+    if (!isKnowError(error)) {
+      process.exit(1);
+    }
   });
 
   process.on('unhandledRejection', (error: Error) => {

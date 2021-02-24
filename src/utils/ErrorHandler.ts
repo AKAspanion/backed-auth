@@ -21,6 +21,13 @@ class ErrorHandler {
       res.status(code).send({ error: error.message });
     }
   }
+
+  public isKnowError(error: Error) {
+    if (error instanceof AppError) {
+      return error.knownError;
+    }
+    return false;
+  }
 }
 
 export default ErrorHandler;
