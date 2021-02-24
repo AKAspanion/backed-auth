@@ -34,8 +34,6 @@ class ErrorHandler {
     if (error.name === 'ValidationError') {
       const validationError = (error as any) ?? {};
 
-      console.log(validationError.errors);
-
       newError = new BadRequestError(
         Object.values(validationError.errors)
           .map((val: any) => val.message as string)

@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-import { APP_CONSTANTS } from '../assets';
+import { USER_ROLES, APP_CONSTANTS } from '../assets';
 
 const userModel = {
   firstName: String,
@@ -13,7 +13,13 @@ const userModel = {
   password: {
     type: String,
     select: false,
+    minLength: 6,
     required: [true, APP_CONSTANTS.PASSWORD_REQUIRED],
+  },
+  role: {
+    type: String,
+    default: USER_ROLES.USER,
+    enum: [USER_ROLES.USER, USER_ROLES.ADMIN],
   },
   active: {
     type: Boolean,
@@ -25,7 +31,9 @@ const userModel = {
   },
 };
 
-export const UserSchema = new mongoose.Schema(userModel);
+export const UserSchema = new mongoose.Schema(userModel, {
+  timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' },
+});
 
 const User = mongoose.model('User', UserSchema);
 
