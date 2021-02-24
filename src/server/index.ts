@@ -1,4 +1,5 @@
 import cors from 'cors';
+import morgan from 'morgan';
 import express, { Application } from 'express';
 
 import '../models';
@@ -13,6 +14,7 @@ export default class Server {
     this.app = express();
 
     this.app.use(cors());
+    this.app.use(morgan('common'));
     this.app.use(express.json({ limit: '200mb' }));
     this.app.use(express.urlencoded({ extended: false }));
 
