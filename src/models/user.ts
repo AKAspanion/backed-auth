@@ -1,16 +1,19 @@
 import mongoose from 'mongoose';
 
+import { APP_CONSTANTS } from '../assets';
+
 const userModel = {
   firstName: String,
   lastName: String,
   email: {
     type: String,
-    required: [true, 'Email is required'],
+    unique: true,
+    required: [true, APP_CONSTANTS.EMAIL_REQUIRED],
   },
   password: {
     type: String,
     select: false,
-    required: [true, 'Password is required'],
+    required: [true, APP_CONSTANTS.PASSWORD_REQUIRED],
   },
   active: {
     type: Boolean,

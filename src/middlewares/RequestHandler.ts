@@ -1,11 +1,11 @@
 import {
-  Response,
   Request,
+  Response,
   NextFunction,
   RequestHandler as ExpressRequestHandler,
 } from 'express';
 
-import ErrorHandler from './ErrorHandler';
+import ErrorHandler from '../utils/ErrorHandler';
 
 const { handleError } = new ErrorHandler();
 
