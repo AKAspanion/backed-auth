@@ -21,9 +21,9 @@ export default class Server {
     this.app.use(express.urlencoded({ extended: false }));
 
     const accessLogStream = fs.createWriteStream(
-      path.join(__dirname, '../../') + 'requests.log',
+      path.join(__dirname, '../../', 'access.log'),
       {
-        flags: 'a+',
+        flags: 'a',
       },
     );
     this.app.use(morgan('common', { stream: accessLogStream }));
