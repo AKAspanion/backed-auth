@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import cors from 'cors';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import express, { Application } from 'express';
 
 import '../models';
@@ -9,7 +10,7 @@ import { routes } from '../modules';
 import { logger } from '../utils/Logger';
 
 export default class Server {
-  public PORT: number = +process.env.PORT! ?? 2018;
+  public PORT: number = +process.env.PORT! ?? 2108;
   private readonly app: Application;
   private server: any;
 
@@ -19,6 +20,8 @@ export default class Server {
     this.app.use(cors());
     this.app.use(express.json({ limit: '200mb' }));
     this.app.use(express.urlencoded({ extended: false }));
+
+    this.app.use(cookieParser());
 
     const accessLogStream = fs.createWriteStream(
       path.join(__dirname, '../../', 'access.log'),

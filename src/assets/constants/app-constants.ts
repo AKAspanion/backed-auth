@@ -2,6 +2,7 @@ export default {
   EMAIL_REQUIRED: 'Email is required',
   PASSWORD_MIN_LENGTH: 'Please provide a longer password',
   VALID_EMAIL_PASSWORD: 'Please provide a valid email/password',
+  INVALID_TOKEN: 'Invalid authorization token',
   INVALID_EMAIL: 'Please provide a valid email',
   USER_EXISTS: 'User already exists',
   PASSWORD_REQUIRED: 'Password is required',
