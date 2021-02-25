@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
-import { USER_ROLES, APP_CONSTANTS } from '../assets';
+import { UserDocument } from './interface';
+import { USER_ROLES, APP_CONSTANTS } from '../../assets';
 
 const userModel = {
   firstName: String,
@@ -8,6 +10,7 @@ const userModel = {
   email: {
     type: String,
     unique: true,
+    lowercase: true,
     required: [true, APP_CONSTANTS.EMAIL_REQUIRED],
   },
   password: {
@@ -31,10 +34,20 @@ const userModel = {
   },
 };
 
-export const UserSchema = new mongoose.Schema(userModel, {
+export const UserSchema = new mongoose.Schema<UserDocument>(userModel, {
   timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' },
 });
 
-const User = mongoose.model('User', UserSchema);
+UserSchema.pre<UserDocument>('save', async function (next: any) {
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+
+UserSchema.methods.matchPassword = async function (inputPassword) {
+  return await bcrypt.compare(inputPassword, this.password);
+};
+
+const User = mongoose.model<UserDocument>('User', UserSchema);
 
 export default User;

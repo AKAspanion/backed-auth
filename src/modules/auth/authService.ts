@@ -1,9 +1,24 @@
-import mongoose from 'mongoose';
+import User from '../../models/user';
+import { APP_CONSTANTS } from '../../assets';
+import { ConflictError } from '../../utils/Error';
 
-const User = mongoose.model('User');
+export const createUser = async ({ email, password, role }: any) => {
+  const foundUser = await User.findOne({ email });
 
-export const registerUser = async (data: any) => {
-  const user = await User.create(data);
+  if (foundUser) {
+    throw new ConflictError(APP_CONSTANTS.USER_EXISTS);
+  }
+
+  const user = await User.create({ email, password, role });
+
+  return user;
+};
+
+export const findUser = async ({ email }: any) => {
+  const user = await User.findOne({
+    email,
+    removed: { $ne: true },
+  }).select('+password');
 
   return user;
 };

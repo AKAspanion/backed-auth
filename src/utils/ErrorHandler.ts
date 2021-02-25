@@ -13,10 +13,10 @@ class ErrorHandler {
     res?: Response,
   ): void {
     let code = 500;
-    let newError = { ...error };
+    let newError = error;
 
     // use a logger utility
-    logger.error(error.message);
+    logger.error(`[${newError.name}]: ${newError.message}`);
 
     if (error.name === 'CastError') {
       newError = new NotFoundError(

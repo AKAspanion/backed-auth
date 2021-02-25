@@ -30,7 +30,8 @@ export class BadRequestError extends AppError {
 }
 
 /**
- * Represents an UNAUTHORIZED error. The request requires user authentication.
+ * Represents an UNAUTHORIZED error.
+ * The request requires user authentication.
  */
 export class UnauthorizedError extends AppError {
   constructor(message?: string) {
@@ -41,7 +42,8 @@ export class UnauthorizedError extends AppError {
 }
 
 /**
- * Represents a FORBIDDEN error. The server understood the request, but is refusing to fulfill it.
+ * Represents a FORBIDDEN error.
+ * The server understood the request, but is refusing to fulfill it.
  */
 export class ForbiddenError extends AppError {
   constructor(message?: string) {
@@ -52,13 +54,26 @@ export class ForbiddenError extends AppError {
 }
 
 /**
- * Represents a NOT FOUND error. The server has not found anything matching the request.
+ * Represents a NOT FOUND error.
+ * The server has not found anything matching the request.
  */
 export class NotFoundError extends AppError {
   constructor(message?: string) {
     super('NotFoundError', message ?? 'Not Found', true);
     Object.setPrototypeOf(this, NotFoundError.prototype);
     this.statusCode = 404;
+  }
+}
+
+/**
+ * Represents a Conflict error.
+ * The server has found conflict with the current state of the target resource.
+ */
+export class ConflictError extends AppError {
+  constructor(message?: string) {
+    super('ConflictError', message ?? 'Not Found', true);
+    Object.setPrototypeOf(this, ConflictError.prototype);
+    this.statusCode = 409;
   }
 }
 
