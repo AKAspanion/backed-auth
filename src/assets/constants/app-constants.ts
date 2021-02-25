@@ -1,5 +1,6 @@
 export default {
   EMAIL_REQUIRED: 'Email is required',
+  PASSWORD_MIN_LENGTH: 'Please provide a longer password',
   PASSWORD_REQUIRED: 'Password is required',
   GIVE_VALID_EMAIL: 'Please add a valid email',
   RESOURCE_NOT_FOUND: 'Resource not found with id of',

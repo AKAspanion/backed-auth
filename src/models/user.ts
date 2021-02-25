@@ -13,7 +13,7 @@ const userModel = {
   password: {
     type: String,
     select: false,
-    minLength: 6,
+    minLength: [6, APP_CONSTANTS.PASSWORD_MIN_LENGTH],
     required: [true, APP_CONSTANTS.PASSWORD_REQUIRED],
   },
   role: {
