@@ -1,4 +1,5 @@
 import mongoose, { Connection } from 'mongoose';
+import { logger } from '../utils/Logger';
 
 export default class MongoConnector {
   private mongoConnection: Connection;
@@ -25,10 +26,10 @@ export default class MongoConnector {
     return mongoose
       .connect(connectionUrl, options)
       .then(() => {
-        console.info('Successfully connected to: ', connectionUrl);
+        logger.info(`successfully connected to: ${connectionUrl}`);
       })
       .catch(() => {
-        console.error('Failed to connect to: ', connectionUrl);
+        logger.error(`failed to connect to: ${connectionUrl}`);
       });
   }
 

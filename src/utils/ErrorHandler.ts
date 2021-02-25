@@ -4,6 +4,7 @@ import { MongoError } from 'mongodb';
 
 import AppError, { BadRequestError, NotFoundError } from './Error';
 import { APP_CONSTANTS } from '../assets';
+import { logger } from './Logger';
 
 class ErrorHandler {
   public handleError(
@@ -15,7 +16,7 @@ class ErrorHandler {
     let newError = { ...error };
 
     // use a logger utility
-    console.error(error);
+    logger.error(error.message);
 
     if (error.name === 'CastError') {
       newError = new NotFoundError(

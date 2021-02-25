@@ -5,7 +5,7 @@ class AppError extends Error {
   public statusCode: number;
   public knownError: boolean;
 
-  constructor(name: string, message?: string, knownError: boolean = false) {
+  constructor(name?: string, message?: string, knownError: boolean = false) {
     super(message);
 
     this.statusCode = 500;
