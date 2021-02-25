@@ -4,12 +4,12 @@ import { register, login, logout, me } from './authController';
 import AuthHandler from '../../middlewares/AuthHandler';
 
 const router = express.Router();
-const { userGuard } = new AuthHandler();
+const { guard } = new AuthHandler();
 
 router.post('/login', login);
-router.post('/logout', userGuard, logout);
+router.post('/logout', guard, logout);
 router.post('/register', register);
 
-router.get('/me', userGuard, me);
+router.get('/me', guard, me);
 
 export default router;

@@ -3,9 +3,9 @@ import { Request, Response } from 'express';
 import { BadRequestError, UnauthorizedError } from '../../utils/Error';
 import RequestHandler from '../../middlewares/RequestHandler';
 import { UserDocument } from '../../models/user/interface';
+import { APP_CONSTANTS, AuthRequest } from '../../assets';
 import { CookieOptions } from 'express-serve-static-core';
 import { createUser, findUser } from './authService';
-import { APP_CONSTANTS, AuthRequest } from '../../assets';
 
 const { handleRequest } = new RequestHandler();
 
@@ -73,6 +73,21 @@ export const me = handleRequest(async (req: Request, res: Response) => {
 
   res.status(200).send({ id, email, role });
 });
+
+/**
+ * @api {post} /auth/forgotpassword Sends current user information
+ * @apiName logout
+ * @apiGroup Auth
+ */
+export const forgotPassword = handleRequest(
+  async (req: Request, res: Response) => {
+    const authReq = req as AuthRequest;
+
+    const { _id: id, email, role } = authReq.user;
+
+    res.status(200).send({ id, email, role });
+  },
+);
 
 /**
  * Send token and cookie in response
