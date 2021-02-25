@@ -4,7 +4,7 @@ import Server from './server';
 import MongoConnector from './mongo';
 import ErrorHandler from './utils/ErrorHandler';
 
-dotenv.config({ path: '.env' });
+dotenv.config();
 
 const connnectionUrl = process.env.DB_URL ?? 'mongodb://db:27017/docker-mongo';
 

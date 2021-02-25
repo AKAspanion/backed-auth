@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 import { UserDocument } from './interface';
@@ -11,6 +12,10 @@ const userModel = {
     type: String,
     unique: true,
     lowercase: true,
+    match: [
+      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+      APP_CONSTANTS.INVALID_EMAIL,
+    ],
     required: [true, APP_CONSTANTS.EMAIL_REQUIRED],
   },
   password: {
@@ -46,6 +51,16 @@ UserSchema.pre<UserDocument>('save', async function (next: any) {
 
 UserSchema.methods.matchPassword = async function (inputPassword) {
   return await bcrypt.compare(inputPassword, this.password);
+};
+
+UserSchema.methods.getSignedToken = function () {
+  return jwt.sign(
+    { id: this._id, role: this.role },
+    process.env.JWT_SECRET_KEY as string,
+    {
+      expiresIn: process.env.JWT_EXPIRE_TIME,
+    },
+  );
 };
 
 const User = mongoose.model<UserDocument>('User', UserSchema);
