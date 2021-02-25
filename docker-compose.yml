@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 
 services:
   manage_modules:
@@ -16,7 +16,7 @@ services:
     working_dir: /app
     command: npm run dev
     ports:
-      - "2108:2108" 
+      - '2108:2108'
     depends_on:
       - db
     links:
@@ -24,8 +24,8 @@ services:
     environment:
       WAIT_HOSTS: db:27017
       NODE_TLS_REJECT_UNAUTHORIZED: 0
-      SUPER_USERS: ""
-      ENV: "local"
+      SUPER_USERS: ''
+      ENV: 'local'
 
   db:
     image: mongo:latest

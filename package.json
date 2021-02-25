@@ -4,9 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start-docker": "sh start-docker.sh",
+    "up": "sh start-docker.sh",
+    "stop": "docker-compose stop",
+    "down": "docker-compose down",
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
+    "prebuild": "rm -rf dist",
     "build": "tsc -p ."
   },
   "repository": {
