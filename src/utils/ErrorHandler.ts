@@ -2,7 +2,11 @@ import { Response, Request } from 'express';
 import { CastError } from 'mongoose';
 import { MongoError } from 'mongodb';
 
-import AppError, { BadRequestError, NotFoundError } from './Error';
+import AppError, {
+  NotFoundError,
+  BadRequestError,
+  UnauthorizedError,
+} from './Error';
 import { APP_CONSTANTS } from '../assets';
 import { logger } from './Logger';
 
@@ -40,6 +44,14 @@ class ErrorHandler {
           .map((val: any) => val.message as string)
           .join(','),
       );
+    }
+
+    if (error.name === 'JsonWebTokenError') {
+      newError = new UnauthorizedError(APP_CONSTANTS.INVALID_TOKEN);
+    }
+
+    if (error.name === 'TokenExpiredError') {
+      newError = new UnauthorizedError(APP_CONSTANTS.TOKEN_EXPIRED);
     }
 
     if (newError instanceof AppError) {

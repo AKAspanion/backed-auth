@@ -3,8 +3,8 @@ import { Request, Response } from 'express';
 import { BadRequestError, UnauthorizedError } from '../../utils/Error';
 import RequestHandler from '../../middlewares/RequestHandler';
 import { UserDocument } from '../../models/user/interface';
-import { APP_CONSTANTS, AuthRequest } from '../../assets';
 import { CookieOptions } from 'express-serve-static-core';
+import { APP_CONSTANTS, AuthRequest } from '../../assets';
 import { createUser, findUser } from './authService';
 
 const { handleRequest } = new RequestHandler();
@@ -75,34 +75,19 @@ export const me = handleRequest(async (req: Request, res: Response) => {
 });
 
 /**
- * @api {post} /auth/forgotpassword Sends current user information
- * @apiName logout
- * @apiGroup Auth
- */
-export const forgotPassword = handleRequest(
-  async (req: Request, res: Response) => {
-    const authReq = req as AuthRequest;
-
-    const { _id: id, email, role } = authReq.user;
-
-    res.status(200).send({ id, email, role });
-  },
-);
-
-/**
  * Send token and cookie in response
  * @param res Response object
  * @param user user document
  * @param statusCode http status code
  */
-const sendWithToken = (
+const sendWithToken = async (
   res: Response,
   user: UserDocument,
   statusCode: number = 200,
 ) => {
   const { _id: id, email, role } = user;
 
-  const token: string = user.getSignedToken();
+  const token: string = await user.getSignedToken();
 
   const expireTime = +(process.env.JWT_COOKIE_EXPIRE_TIME ?? 30);
 
