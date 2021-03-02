@@ -19,24 +19,19 @@ class ErrorHandler {
     let code = 500;
     let newError = error;
 
-    // use a logger utility
-    logger.error(`[${newError.name}]: ${newError.message}`);
+    logger.error(`ErrorHandler [${newError.name}]: ${newError.message}`);
 
     if (error.name === 'CastError') {
       newError = new NotFoundError(
         `${APP_CONSTANTS.RESOURCE_NOT_FOUND} ${(error as CastError).value}`,
       );
-    }
-
-    if (error.name === 'MongoError') {
+    } else if (error.name === 'MongoError') {
       const mongoError = error as MongoError;
 
       if (mongoError.code === 11000) {
         newError = new BadRequestError(APP_CONSTANTS.DUPLICATE_VALUE);
       }
-    }
-
-    if (error.name === 'ValidationError') {
+    } else if (error.name === 'ValidationError') {
       const validationError = (error as any) ?? {};
 
       newError = new BadRequestError(
@@ -44,18 +39,14 @@ class ErrorHandler {
           .map((val: any) => val.message as string)
           .join(','),
       );
-    }
-
-    if (error.name === 'JsonWebTokenError') {
+    } else if (error.name === 'JsonWebTokenError') {
       newError = new UnauthorizedError(APP_CONSTANTS.INVALID_TOKEN);
-    }
-
-    if (error.name === 'TokenExpiredError') {
+    } else if (error.name === 'TokenExpiredError') {
       newError = new UnauthorizedError(APP_CONSTANTS.TOKEN_EXPIRED);
-    }
-
-    if (newError instanceof AppError) {
+    } else if (newError instanceof AppError) {
       code = newError.statusCode;
+    } else {
+      newError = new AppError();
     }
 
     if (res) {

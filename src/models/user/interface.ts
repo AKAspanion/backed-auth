@@ -6,6 +6,7 @@ export interface UserDocument extends Document {
   password: string;
   active: Boolean;
   removed: Boolean;
-  getSignedToken: () => Promise<string>;
+  getAccessToken: () => Promise<string>;
+  getRefreshToken: () => Promise<string>;
   matchPassword: (password: string) => Promise<boolean>;
 }

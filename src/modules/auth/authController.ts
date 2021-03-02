@@ -1,13 +1,15 @@
 import { Request, Response } from 'express';
 
 import { BadRequestError, UnauthorizedError } from '../../utils/Error';
+import { removeCachedToken, verifyToken } from '../../utils/Token';
 import RequestHandler from '../../middlewares/RequestHandler';
 import { UserDocument } from '../../models/user/interface';
-import { CookieOptions } from 'express-serve-static-core';
 import { APP_CONSTANTS, AuthRequest } from '../../assets';
 import { createUser, findUser } from './authService';
+import ErrorHandler from '../../utils/ErrorHandler';
 
 const { handleRequest } = new RequestHandler();
+const { handleError } = new ErrorHandler();
 
 /**
  * @api {post} /auth/register Registers a new user
@@ -17,7 +19,7 @@ const { handleRequest } = new RequestHandler();
 export const register = handleRequest(async (req: Request, res: Response) => {
   const user = await createUser(req.body);
 
-  sendWithToken(res, user);
+  sendWithToken(req, res, user);
 });
 
 /**
@@ -44,7 +46,7 @@ export const login = handleRequest(async (req: Request, res: Response) => {
     throw new UnauthorizedError(APP_CONSTANTS.INVALID_CREDENTIALS);
   }
 
-  sendWithToken(res, user);
+  sendWithToken(req, res, user);
 });
 
 /**
@@ -53,13 +55,42 @@ export const login = handleRequest(async (req: Request, res: Response) => {
  * @apiGroup Auth
  */
 export const logout = handleRequest(async (req: Request, res: Response) => {
-  const userReq = req as AuthRequest;
-  const { email, password } = req.body;
+  const authReq = req as AuthRequest;
+  const { _id: id } = authReq.user;
 
-  console.log(userReq.user);
+  const { refreshToken } = req.body;
 
-  res.status(200).send({ email, password });
+  if (!refreshToken) {
+    throw new BadRequestError();
+  }
+
+  await verifyToken(refreshToken, process.env.JWT_REFRSH_KEY!);
+
+  await removeCachedToken(id);
+
+  res.status(200).send({ success: true });
 });
+
+/**
+ * @api {post} /auth/me Sends current user information
+ * @apiName logout
+ * @apiGroup Auth
+ */
+export const refreshToken = handleRequest(
+  async (req: Request, res: Response) => {
+    const authReq = req as AuthRequest;
+
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      throw new BadRequestError();
+    }
+
+    await verifyToken(refreshToken, process.env.JWT_REFRSH_KEY!);
+
+    sendWithToken(req, res, authReq.user);
+  },
+);
 
 /**
  * @api {get} /auth/me Sends current user information
@@ -75,34 +106,25 @@ export const me = handleRequest(async (req: Request, res: Response) => {
 });
 
 /**
- * Send token and cookie in response
+ * Send access token and refresh token in response
  * @param res Response object
  * @param user user document
  * @param statusCode http status code
  */
 const sendWithToken = async (
+  req: Request,
   res: Response,
   user: UserDocument,
   statusCode: number = 200,
 ) => {
   const { _id: id, email, role } = user;
 
-  const token: string = await user.getSignedToken();
+  try {
+    const accessToken: string = await user.getAccessToken();
+    const refreshToken: string = await user.getRefreshToken();
 
-  const expireTime = +(process.env.JWT_COOKIE_EXPIRE_TIME ?? 30);
-
-  const options: CookieOptions = {
-    expires: new Date(Date.now() + expireTime * 1000 * 60 * 60 * 24),
-    httpOnly: true,
-    path: '/',
-  };
-
-  if (process.env.NODE_ENV === 'production') {
-    options.secure = true;
+    res.status(statusCode).send({ id, email, role, accessToken, refreshToken });
+  } catch (error) {
+    handleError(error, req, res);
   }
-
-  res
-    .status(statusCode)
-    .cookie('token', token, options)
-    .send({ id, email, role, token });
 };

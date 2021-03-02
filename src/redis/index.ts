@@ -70,8 +70,60 @@ export default class RedisClient {
       } catch (error) {
         logger.error(`[Error in setting redis key] ${error.message}`);
 
-        reject(new AppError());
+        reject(error);
       }
     });
   }
+
+  public static get(key: string): Promise<string | null> {
+    return new Promise<string | null>((resolve, reject) => {
+      if (!RedisClient.client) {
+        logger.error(`[Error in getting redis key] client is not defined`);
+
+        reject(new AppError());
+      }
+
+      try {
+        RedisClient.client.GET(key.toString(), (error, result) => {
+          if (error) {
+            logger.error(`[Error in getting redis key] ${error.message}`);
+
+            reject(error);
+          }
+
+          return resolve(result);
+        });
+      } catch (error) {
+        logger.error(`[Error in getting redis key] ${error.message}`);
+
+        reject(error);
+      }
+    });
+  }
+
+  public static delete = (key: string): Promise<any> => {
+    return new Promise<any>((resolve, reject) => {
+      if (!RedisClient.client) {
+        logger.error(`[Error in deleting redis key] client is not defined`);
+
+        reject(new AppError());
+      }
+
+      try {
+        RedisClient.client.DEL(key.toString(), (error, result) => {
+          if (error) {
+            logger.error(`[Error in deleting redis key] ${error.message}`);
+
+            reject(error);
+          }
+
+          return resolve(result);
+        });
+      } catch (error) {
+        logger.error(`[Error in deleting redis key] ${error.message}`);
+
+        reject(error);
+      }
+    });
+  };
 }

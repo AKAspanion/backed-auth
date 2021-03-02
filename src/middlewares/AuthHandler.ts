@@ -1,4 +1,3 @@
-import jwt from 'jsonwebtoken';
 import { ObjectID } from 'mongodb';
 import {
   Request,
@@ -7,9 +6,14 @@ import {
   RequestHandler as ExpressRequestHandler,
 } from 'express';
 
-import AppError, { ForbiddenError, UnauthorizedError } from '../utils/Error';
+import AppError, {
+  NotFoundError,
+  ForbiddenError,
+  UnauthorizedError,
+} from '../utils/Error';
 import { APP_CONSTANTS, AuthRequest } from '../assets';
 import RequestHandler from './RequestHandler';
+import { verifyToken } from '../utils/Token';
 import User from '../models/user';
 
 const { handleRequest } = new RequestHandler();
@@ -31,15 +35,20 @@ export default class AuthHandler {
         throw new UnauthorizedError(APP_CONSTANTS.INVALID_TOKEN);
       }
 
-      const decoded: any = jwt.verify(
+      const decoded: any = await verifyToken(
         token,
-        process.env.JWT_SECRET_KEY as string,
+        process.env.JWT_ACCESS_KEY as string,
       );
 
       if (typeof decoded === 'object') {
-        (req as AuthRequest).user = await User.findById(
-          new ObjectID(decoded.id),
-        ).lean();
+        const user = await User.findById(new ObjectID(decoded.id));
+
+        if (user) {
+          (req as AuthRequest).user = user;
+        } else {
+          throw new NotFoundError();
+        }
+
         next();
       } else {
         throw new AppError();
