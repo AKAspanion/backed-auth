@@ -37,6 +37,14 @@ services:
     volumes:
       - mongodata:/data/db
 
+  redis:
+    image: redis
+    hostname: redis
+    container_name: cache
+    ports:
+      - '6379:6379'
+    command: ['--requirepass "secret"']
+
 volumes:
   mongodata:
     external: true
