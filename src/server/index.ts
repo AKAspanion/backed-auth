@@ -2,12 +2,16 @@ import fs from 'fs';
 import path from 'path';
 import cors from 'cors';
 import morgan from 'morgan';
+import session from 'express-session';
+import connectRedis from 'connect-redis';
 import cookieParser from 'cookie-parser';
 import express, { Application } from 'express';
 
 import '../models';
+import RedisClient from '../redis';
 import { routes } from '../modules';
 import { logger } from '../utils/Logger';
+import { SESSION_OPTIONS } from '../config/';
 
 export default class Server {
   public PORT: number = +process.env.PORT! ?? 2108;
@@ -22,6 +26,8 @@ export default class Server {
     this.app.use(express.urlencoded({ extended: false }));
 
     this.app.use(cookieParser());
+
+    this.createSession();
 
     const accessLogStream = fs.createWriteStream(
       path.join(__dirname, '../../', 'access.log'),
@@ -62,6 +68,19 @@ export default class Server {
         return resolve(true);
       }
     });
+  }
+
+  private async createSession() {
+    await RedisClient.createClient();
+
+    const RedisStore = connectRedis(session);
+
+    this.app.use(
+      session({
+        store: new RedisStore({ client: RedisClient.client }),
+        ...SESSION_OPTIONS,
+      }),
+    );
   }
 
   private loadRoutes() {

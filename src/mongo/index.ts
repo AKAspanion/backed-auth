@@ -1,4 +1,6 @@
 import mongoose, { Connection } from 'mongoose';
+
+import { MONGO_OPTIONS } from '../config';
 import { logger } from '../utils/Logger';
 
 export default class MongoConnector {
@@ -13,18 +15,8 @@ export default class MongoConnector {
    * @returns { Promise<any> }
    */
   connect(connectionUrl: string): Promise<any> {
-    const options = {
-      useNewUrlParser: true,
-      server: {
-        auto_reconnect: true,
-        reconnectInterval: 1000,
-        reconnectTries: Number.MAX_VALUE,
-        socketOptions: { keepAlive: 1, connectTimeoutMS: 30000 },
-      },
-    };
-
     return mongoose
-      .connect(connectionUrl, options)
+      .connect(connectionUrl, MONGO_OPTIONS)
       .then(() => {
         logger.info(`successfully connected to: ${connectionUrl}`);
       })

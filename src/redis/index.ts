@@ -1,4 +1,5 @@
 import redis, { RedisClient as SuperRedisClient } from 'redis';
+
 import { logger } from '../utils/Logger';
 import AppError from '../utils/Error';
 

@@ -15,7 +15,6 @@ const connnectionUrl = process.env.DB_URL ?? 'mongodb://db:27017/docker-mongo';
   const connector = new MongoConnector();
 
   await server.start();
-  await RedisClient.createClient();
   await connector.connect(connnectionUrl);
 
   const graceful = async () => {
