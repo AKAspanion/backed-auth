@@ -9,7 +9,7 @@ const { guard } = new AuthHandler();
 router.post('/login', login);
 router.post('/register', register);
 router.post('/logout', guard, logout);
-router.post('/refreshtoken', guard, refreshToken);
+router.post('/refreshtoken', refreshToken);
 
 router.get('/me', guard, me);
 

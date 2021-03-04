@@ -68,12 +68,50 @@ export const verifyToken = (
   });
 };
 
+/**
+ * Removes cached token from redis
+ * @param key redis key
+ */
 export const removeCachedToken = (key: string): Promise<boolean> => {
   return new Promise<boolean>(async resolve => {
     try {
       resolve(await RedisClient.delete(key));
     } catch (error) {
       logger.error(`[Error removing token from cache]: ${error.message}`);
+    }
+  });
+};
+
+/**
+ * Generates access jwt token
+ * @param id id of the user
+ */
+export const getAccessToken = function (id: string) {
+  return createToken({ id }, process.env.JWT_ACCESS_KEY as string, {
+    expiresIn: process.env.JWT_ACCESS_EXPIRE_TIME,
+  });
+};
+
+/**
+ * Generates refresh jwt token
+ * @param id id of the user
+ */
+export const getRefreshToken = async function (id: string) {
+  return new Promise<string>(async (resolve, reject) => {
+    try {
+      const token = await createToken(
+        { id },
+        process.env.JWT_REFRSH_KEY as string,
+        {
+          expiresIn: process.env.JWT_REFRESH_EXPIRE_TIME,
+        },
+      );
+
+      await RedisClient.set(id, token, 'EX', 365 * 24 * 60 * 60);
+
+      resolve(token);
+    } catch (error) {
+      reject(error);
     }
   });
 };

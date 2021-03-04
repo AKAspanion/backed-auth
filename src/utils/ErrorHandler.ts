@@ -16,7 +16,6 @@ class ErrorHandler {
     _?: Request,
     res?: Response,
   ): void {
-    let code = 500;
     let newError = error;
 
     logger.error(`ErrorHandler [${newError.name}]: ${newError.message}`);
@@ -43,16 +42,16 @@ class ErrorHandler {
       newError = new UnauthorizedError(APP_CONSTANTS.INVALID_TOKEN);
     } else if (error.name === 'TokenExpiredError') {
       newError = new UnauthorizedError(APP_CONSTANTS.TOKEN_EXPIRED);
-    } else if (newError instanceof AppError) {
-      code = newError.statusCode;
     } else {
-      newError = new AppError();
+      if (!(newError instanceof AppError)) {
+        newError = new AppError();
+      }
     }
 
     if (res) {
-      const { name, message } = newError;
+      const { name, message, statusCode } = newError as AppError;
 
-      res.status(code).send({
+      res.status(statusCode ?? 500).send({
         error: {
           name,
           message: message ?? APP_CONSTANTS.DEFAULT_SERVER_ERROR,

@@ -1,12 +1,17 @@
 import { Request, Response } from 'express';
 
+import {
+  verifyToken,
+  getAccessToken,
+  getRefreshToken,
+  removeCachedToken,
+} from '../../utils/Token';
 import { BadRequestError, UnauthorizedError } from '../../utils/Error';
-import { removeCachedToken, verifyToken } from '../../utils/Token';
 import RequestHandler from '../../middlewares/RequestHandler';
-import { UserDocument } from '../../models/user/interface';
 import { APP_CONSTANTS, AuthRequest } from '../../assets';
 import { createUser, findUser } from './authService';
 import ErrorHandler from '../../utils/ErrorHandler';
+import { UserDocument } from '../../models/user/interface';
 
 const { handleRequest } = new RequestHandler();
 const { handleError } = new ErrorHandler();
@@ -72,29 +77,30 @@ export const logout = handleRequest(async (req: Request, res: Response) => {
 });
 
 /**
- * @api {post} /auth/me Sends current user information
- * @apiName logout
+ * @api {post} /auth/refreshtoken Generates a new refresh token
+ * @apiName refreshtoken
  * @apiGroup Auth
  */
 export const refreshToken = handleRequest(
   async (req: Request, res: Response) => {
-    const authReq = req as AuthRequest;
-
     const { refreshToken } = req.body;
 
     if (!refreshToken) {
       throw new BadRequestError();
     }
 
-    await verifyToken(refreshToken, process.env.JWT_REFRSH_KEY!);
+    const payload = await verifyToken(
+      refreshToken,
+      process.env.JWT_REFRSH_KEY!,
+    );
 
-    sendWithToken(req, res, authReq.user);
+    sendWithToken(req, res, null, payload);
   },
 );
 
 /**
  * @api {get} /auth/me Sends current user information
- * @apiName logout
+ * @apiName me
  * @apiGroup Auth
  */
 export const me = handleRequest(async (req: Request, res: Response) => {
@@ -114,16 +120,29 @@ export const me = handleRequest(async (req: Request, res: Response) => {
 const sendWithToken = async (
   req: Request,
   res: Response,
-  user: UserDocument,
+  user: UserDocument | null,
+  payload?: object | string,
   statusCode: number = 200,
 ) => {
-  const { _id: id, email, role } = user;
-
   try {
-    const accessToken: string = await user.getAccessToken();
-    const refreshToken: string = await user.getRefreshToken();
+    let id: any = payload;
+    let resUser: object = {};
 
-    res.status(statusCode).send({ id, email, role, accessToken, refreshToken });
+    if (payload && typeof payload === 'object') {
+      id = (payload as any).id;
+    }
+
+    if (user) {
+      id = user._id;
+      const { email, role } = user;
+
+      resUser = { id, email, role };
+    }
+
+    const accessToken: string = await getAccessToken(id);
+    const refreshToken: string = await getRefreshToken(id);
+
+    res.status(statusCode).send({ ...resUser, accessToken, refreshToken });
   } catch (error) {
     handleError(error, req, res);
   }

@@ -1,9 +1,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-import RedisClient from '../../redis';
 import { UserDocument } from './interface';
-import { createToken } from '../../utils/Token';
 import { USER_ROLES, APP_CONSTANTS } from '../../assets';
 
 const userModel = {
@@ -52,32 +50,6 @@ UserSchema.pre<UserDocument>('save', async function (next: any) {
 
 UserSchema.methods.matchPassword = async function (inputPassword) {
   return await bcrypt.compare(inputPassword, this.password);
-};
-
-UserSchema.methods.getAccessToken = function () {
-  return createToken({ id: this._id }, process.env.JWT_ACCESS_KEY as string, {
-    expiresIn: process.env.JWT_ACCESS_EXPIRE_TIME,
-  });
-};
-
-UserSchema.methods.getRefreshToken = async function () {
-  return new Promise<string>(async (resolve, reject) => {
-    try {
-      const token = await createToken(
-        { id: this._id },
-        process.env.JWT_REFRSH_KEY as string,
-        {
-          expiresIn: process.env.JWT_REFRESH_EXPIRE_TIME,
-        },
-      );
-
-      await RedisClient.set(this._id, token, 'EX', 365 * 24 * 60 * 60);
-
-      resolve(token);
-    } catch (error) {
-      reject(error);
-    }
-  });
 };
 
 const User = mongoose.model<UserDocument>('User', UserSchema);
