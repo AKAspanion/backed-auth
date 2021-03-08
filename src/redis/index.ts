@@ -6,35 +6,31 @@ import AppError from '../utils/Error';
 export default class RedisClient {
   public static client: SuperRedisClient;
 
-  public static createClient(): Promise<boolean> {
-    return new Promise<boolean>(resolve => {
-      RedisClient.client = redis.createClient({
-        port: +process.env.REDIS_PORT!,
-        host: process.env.REDIS_HOST,
-        password: process.env.REDIS_PASS,
-      });
+  public static createClient() {
+    RedisClient.client = redis.createClient({
+      port: +process.env.REDIS_PORT!,
+      host: process.env.REDIS_HOST,
+      password: process.env.REDIS_PASS,
+    });
 
-      RedisClient.client.on('connect', () => {
-        logger.info('Client connected to redis...');
-      });
+    RedisClient.client.on('connect', () => {
+      logger.info('Client connected to redis...');
+    });
 
-      RedisClient.client.on('ready', () => {
-        logger.info('Client connected to redis and ready to use...');
-      });
+    RedisClient.client.on('ready', () => {
+      logger.info('Client connected to redis and ready to use...');
+    });
 
-      RedisClient.client.on('error', err => {
-        logger.error(err.message);
-      });
+    RedisClient.client.on('error', err => {
+      logger.error(err.message);
+    });
 
-      RedisClient.client.on('end', () => {
-        logger.info('Client disconnected from redis');
-      });
+    RedisClient.client.on('end', () => {
+      logger.info('Client disconnected from redis');
+    });
 
-      process.on('SIGINT', () => {
-        RedisClient.client.quit();
-      });
-
-      resolve(true);
+    process.on('SIGINT', () => {
+      RedisClient.client.quit();
     });
   }
 

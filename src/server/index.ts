@@ -25,9 +25,9 @@ export default class Server {
     this.app.use(express.json({ limit: '200mb' }));
     this.app.use(express.urlencoded({ extended: false }));
 
-    this.app.use(cookieParser());
-
     this.createSession();
+
+    this.app.use(cookieParser());
 
     const accessLogStream = fs.createWriteStream(
       path.join(__dirname, '../../', 'access.log'),
@@ -70,8 +70,8 @@ export default class Server {
     });
   }
 
-  private async createSession() {
-    await RedisClient.createClient();
+  private createSession() {
+    RedisClient.createClient();
 
     const RedisStore = connectRedis(session);
 

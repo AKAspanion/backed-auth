@@ -1,12 +1,12 @@
 import dotenv from 'dotenv';
 
+dotenv.config();
+
 import Server from './server';
 import RedisClient from './redis';
 import MongoConnector from './mongo';
 import ErrorHandler from './utils/ErrorHandler';
 import { logger } from './utils/Logger';
-
-dotenv.config();
 
 const connnectionUrl = process.env.DB_URL ?? 'mongodb://db:27017/docker-mongo';
 

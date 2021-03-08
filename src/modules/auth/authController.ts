@@ -6,12 +6,12 @@ import {
   getRefreshToken,
   removeCachedToken,
 } from '../../utils/Token';
+import { APP_CONSTANTS, AuthRequest, SessionRequest } from '../../assets';
 import { BadRequestError, UnauthorizedError } from '../../utils/Error';
 import RequestHandler from '../../middlewares/RequestHandler';
-import { APP_CONSTANTS, AuthRequest } from '../../assets';
+import { UserDocument } from '../../models/user/interface';
 import { createUser, findUser } from './authService';
 import ErrorHandler from '../../utils/ErrorHandler';
-import { UserDocument } from '../../models/user/interface';
 
 const { handleRequest } = new RequestHandler();
 const { handleError } = new ErrorHandler();
@@ -23,6 +23,8 @@ const { handleError } = new ErrorHandler();
  */
 export const register = handleRequest(async (req: Request, res: Response) => {
   const user = await createUser(req.body);
+
+  setSession(req, res, user.id);
 
   sendWithToken(req, res, user);
 });
@@ -110,6 +112,20 @@ export const me = handleRequest(async (req: Request, res: Response) => {
 
   res.status(200).send({ id, email, role });
 });
+
+/**
+ * Sets a session cookie in header
+ * @param req Request object
+ * @param res Response object
+ * @param userId id of the user
+ */
+const setSession = (req: Request, res: Response, userId: string) => {
+  try {
+    (req.session as SessionRequest).userId = userId;
+  } catch (error) {
+    handleError(error, req, res);
+  }
+};
 
 /**
  * Send access token and refresh token in response
